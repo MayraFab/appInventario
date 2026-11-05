@@ -7,13 +7,27 @@ const api = axios.create({
   baseURL: 'http://localhost:3006/api'
 });
 
-// Lee la sesión guardada en el navegador (token + datos del usuario)
+// ¿El JWT sigue vigente? Lee el campo "exp" (en segundos) del payload del token
+export const tokenVigente = (token) => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false; // token mal formado
+  }
+};
+
+// Lee la sesión guardada en el navegador (token + datos del usuario).
+// Si el token ya venció, la borra: así no se entra al panel con una sesión caducada
 export const leerSesion = () => {
   try {
-    return JSON.parse(localStorage.getItem(CLAVE_SESION));
+    const sesion = JSON.parse(localStorage.getItem(CLAVE_SESION));
+    if (sesion?.token && tokenVigente(sesion.token)) return sesion;
   } catch {
-    return null;
+    // dato corrupto en localStorage
   }
+  localStorage.removeItem(CLAVE_SESION);
+  return null;
 };
 
 // ANTES de cada petición: agrega el token JWT en el encabezado Authorization

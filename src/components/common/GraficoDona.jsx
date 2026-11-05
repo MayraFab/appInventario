@@ -16,8 +16,8 @@ export default function GraficoDona({ datos, tamano = 190, grosor = 30 }) {
 
   return (
     <svg width={tamano} height={tamano} viewBox={`0 0 ${tamano} ${tamano}`} role="img" aria-label="Stock por categoría">
-      {/* Anillo gris de fondo */}
-      <circle cx={tamano / 2} cy={tamano / 2} r={radio} fill="none" stroke="#e2e8f0" strokeWidth={grosor} />
+      {/* Anillo beige de fondo */}
+      <circle cx={tamano / 2} cy={tamano / 2} r={radio} fill="none" stroke="#ece3d2" strokeWidth={grosor} />
 
       {/* Un arco por categoría: su largo es proporcional a su stock */}
       {arcos.map((a) => (

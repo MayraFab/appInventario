@@ -23,4 +23,4 @@ export const cantidadConSigno = (tipo, cantidad) => {
 };
 
 // Paleta para gráficos (una por categoría)
-export const COLORES = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16'];
+export const COLORES = ['#4a7c59', '#c9a66b', '#8fb07a', '#a0522d', '#6b8f8a', '#d4b483', '#2f4a3a', '#b5a27a'];
