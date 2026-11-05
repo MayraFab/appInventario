@@ -6,6 +6,8 @@ import useAlerta from '../hooks/useAlerta';
 import Modal from '../components/common/Modal';
 import { Encabezado, Buscador, FilaVacia, Paginacion, Alerta, ErrorCarga } from '../components/common/UI';
 import { codigo } from '../utils/formato';
+import useAuth from '../hooks/useAuth';
+import { ADMIN, ALMACENERO } from '../utils/roles';
 
 const FORM_VACIO = { id: null, razon_social: '', contacto: '', telefono: '', email: '' };
 
@@ -13,6 +15,9 @@ export default function Proveedores() {
   const { datos: proveedores, cargando, error: errorCarga, recargar } = useRecurso('/proveedores');
   const tabla = useTabla(proveedores, (p) => `${p.razon_social} ${p.contacto ?? ''} ${p.email ?? ''}`);
   const { alerta, exito, error, cerrar } = useAlerta();
+  const { tieneRol } = useAuth();
+  const puedeEditar = tieneRol(ADMIN, ALMACENERO); // Supervisor: solo lectura
+  const puedeEliminar = tieneRol(ADMIN);
 
   const [form, setForm] = useState(FORM_VACIO);
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -55,7 +60,7 @@ export default function Proveedores() {
   return (
     <>
       <Alerta alerta={alerta} onCerrar={cerrar} />
-      <Encabezado titulo="Proveedores" descripcion="Empresas que abastecen los productos" textoBoton="Nuevo Proveedor" onNuevo={abrirNuevo} />
+      <Encabezado titulo="Proveedores" descripcion="Empresas que abastecen los productos" textoBoton={puedeEditar ? 'Nuevo Proveedor' : null} onNuevo={abrirNuevo} />
       <ErrorCarga mensaje={errorCarga} />
 
       <div className="card">
@@ -78,8 +83,8 @@ export default function Proveedores() {
                   <td className="small">{p.email}</td>
                   <td className="text-center"><span className="badge rounded-pill text-bg-light border">{p.total_productos}</span></td>
                   <td className="text-end text-nowrap">
-                    <button className="btn btn-warning btn-sm me-2" onClick={() => abrirEditar(p)}><i className="bi bi-pencil-square me-1"></i>Editar</button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p)}><i className="bi bi-trash me-1"></i>Eliminar</button>
+                    {puedeEditar && <button className="btn btn-warning btn-sm me-2" onClick={() => abrirEditar(p)}><i className="bi bi-pencil-square me-1"></i>Editar</button>}
+                    {puedeEliminar && <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p)}><i className="bi bi-trash me-1"></i>Eliminar</button>}
                   </td>
                 </tr>
               ))}

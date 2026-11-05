@@ -6,6 +6,7 @@ import useAlerta from '../hooks/useAlerta';
 import Modal from '../components/common/Modal';
 import { Encabezado, Buscador, FilaVacia, Paginacion, Alerta, ErrorCarga } from '../components/common/UI';
 import { codigo } from '../utils/formato';
+import useAuth from '../hooks/useAuth';
 
 const FORM_VACIO = { id: null, nombre: '', email: '', password: '', rol: 'Almacenero' };
 const ROLES = ['Administrador', 'Almacenero', 'Supervisor'];
@@ -15,6 +16,7 @@ export default function Usuarios() {
   const { datos: usuarios, cargando, error: errorCarga, recargar } = useRecurso('/usuarios');
   const tabla = useTabla(usuarios, (u) => `${u.nombre} ${u.email} ${u.rol}`);
   const { alerta, exito, error, cerrar } = useAlerta();
+  const { usuario: yo } = useAuth();
 
   const [form, setForm] = useState(FORM_VACIO);
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -71,7 +73,7 @@ export default function Usuarios() {
               {tabla.visibles.map((u) => (
                 <tr key={u.id}>
                   <td className="text-secondary">{codigo(u.id)}</td>
-                  <td className="fw-semibold">{u.nombre}</td>
+                  <td className="fw-semibold">{u.nombre}{u.id === yo.id && <span className="badge text-bg-light border ms-2">Tú</span>}</td>
                   <td className="small">{u.email}</td>
                   <td><span className={`badge text-bg-${COLOR_ROL[u.rol]}`}>{u.rol}</span></td>
                   <td>
@@ -81,7 +83,12 @@ export default function Usuarios() {
                   </td>
                   <td className="text-end text-nowrap">
                     <button className="btn btn-warning btn-sm me-2" onClick={() => abrirEditar(u)}><i className="bi bi-pencil-square me-1"></i>Editar</button>
-                    <button className={`btn btn-sm ${u.activo ? 'btn-danger' : 'btn-success'}`} onClick={() => cambiarEstado(u)}>
+                    <button
+                      className={`btn btn-sm ${u.activo ? 'btn-danger' : 'btn-success'}`}
+                      onClick={() => cambiarEstado(u)}
+                      disabled={u.id === yo.id}
+                      title={u.id === yo.id ? 'No puede desactivar su propia cuenta' : undefined}
+                    >
                       <i className={`bi ${u.activo ? 'bi-person-x' : 'bi-person-check'} me-1`}></i>{u.activo ? 'Desactivar' : 'Activar'}
                     </button>
                   </td>

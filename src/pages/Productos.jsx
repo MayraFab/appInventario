@@ -7,10 +7,12 @@ import useAlerta from '../hooks/useAlerta';
 import Modal from '../components/common/Modal';
 import { Encabezado, Buscador, FilaVacia, Paginacion, Alerta, ErrorCarga } from '../components/common/UI';
 import { codigo, moneda } from '../utils/formato';
+import useAuth from '../hooks/useAuth';
+import { ADMIN, ALMACENERO } from '../utils/roles';
 
 const FORM_VACIO = {
   id: null, nombre: '', descripcion: '', precio: '', stock_minimo: 5,
-  categoria_id: '', proveedor_id: '', stock_inicial: '', usuario_id: '', stock: 0
+  categoria_id: '', proveedor_id: '', stock_inicial: '', stock: 0
 };
 
 export default function Productos() {
@@ -18,8 +20,10 @@ export default function Productos() {
   // Listas para llenar los <select> del formulario (formularios relacionales)
   const { datos: categorias } = useRecurso('/categorias');
   const { datos: proveedores } = useRecurso('/proveedores');
-  const { datos: usuarios } = useRecurso('/usuarios');
   const { alerta, exito, error, cerrar } = useAlerta();
+  const { tieneRol } = useAuth();
+  const puedeEditar = tieneRol(ADMIN, ALMACENERO); // Supervisor: solo lectura
+  const puedeEliminar = tieneRol(ADMIN);
 
   const [filtroCategoria, setFiltroCategoria] = useState('');
   const productosFiltrados = filtroCategoria
@@ -31,9 +35,7 @@ export default function Productos() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
-  const usuariosActivos = usuarios.filter((u) => u.activo);
   const sinCategorias = categorias.length === 0;
-  const pideUsuario = !form.id && Number(form.stock_inicial) > 0;
 
   const abrirNuevo = () => { setForm(FORM_VACIO); setModalAbierto(true); };
   const abrirEditar = (p) => {
@@ -49,7 +51,8 @@ export default function Productos() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGuardando(true);
-    const { id, stock: _stockActual, ...datos } = form; // el stock no se envía
+    // eslint-disable-next-line no-unused-vars
+    const { id, stock, ...datos } = form; // el stock no se envía
     try {
       if (id) await api.put(`/productos/${id}`, datos);
       else await api.post('/productos', datos);
@@ -77,7 +80,7 @@ export default function Productos() {
   return (
     <>
       <Alerta alerta={alerta} onCerrar={cerrar} />
-      <Encabezado titulo="Productos" descripcion="Catálogo con su categoría, proveedor y stock" textoBoton="Nuevo Producto" onNuevo={abrirNuevo} />
+      <Encabezado titulo="Productos" descripcion="Catálogo con su categoría, proveedor y stock" textoBoton={puedeEditar ? 'Nuevo Producto' : null} onNuevo={abrirNuevo} />
       <ErrorCarga mensaje={errorCarga} />
 
       <div className="card">
@@ -122,8 +125,8 @@ export default function Productos() {
                       </span>
                     </td>
                     <td className="text-end text-nowrap">
-                      <button className="btn btn-warning btn-sm me-2" onClick={() => abrirEditar(p)}><i className="bi bi-pencil-square me-1"></i>Editar</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p)}><i className="bi bi-trash me-1"></i>Eliminar</button>
+                      {puedeEditar && <button className="btn btn-warning btn-sm me-2" onClick={() => abrirEditar(p)}><i className="bi bi-pencil-square me-1"></i>Editar</button>}
+                      {puedeEliminar && <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p)}><i className="bi bi-trash me-1"></i>Eliminar</button>}
                     </td>
                   </tr>
                 );
@@ -187,17 +190,10 @@ export default function Productos() {
                 </div>
               ) : (
                 <>
-                  <div className="col-md-4">
+                  <div className="col-md-8">
                     <label className="form-label">Stock inicial</label>
                     <input name="stock_inicial" type="number" min="0" className="form-control" value={form.stock_inicial} onChange={handleChange} placeholder="0" />
-                    <div className="form-text">Se registra como Entrada en el Kardex.</div>
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Registrado por {pideUsuario && '*'}</label>
-                    <select name="usuario_id" className="form-select" value={form.usuario_id} onChange={handleChange} required={pideUsuario} disabled={!pideUsuario}>
-                      <option value="">-- Usuario --</option>
-                      {usuariosActivos.map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}
-                    </select>
+                    <div className="form-text">Se registra como Entrada en el Kardex a nombre del usuario que inició sesión.</div>
                   </div>
                 </>
               )}

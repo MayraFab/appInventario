@@ -6,15 +6,19 @@ import useAlerta from '../hooks/useAlerta';
 import Modal from '../components/common/Modal';
 import { Encabezado, Buscador, FilaVacia, Paginacion, Alerta, ErrorCarga } from '../components/common/UI';
 import { codigo, fechaHora, colorTipo, cantidadConSigno } from '../utils/formato';
+import useAuth from '../hooks/useAuth';
+import { ADMIN, ALMACENERO, SUPERVISOR } from '../utils/roles';
 
-const FORM_VACIO = { producto_id: '', tipo_movimiento: 'Entrada', cantidad: '', usuario_id: '', observaciones: '' };
+const FORM_VACIO = { producto_id: '', tipo_movimiento: 'Entrada', cantidad: '', observaciones: '' };
 const TIPOS = ['Entrada', 'Salida', 'Ajuste'];
 
 export default function Kardex() {
   const { datos: movimientos, cargando, error: errorCarga, recargar } = useRecurso('/movimientos');
   const { datos: productos, recargar: recargarProductos } = useRecurso('/productos');
-  const { datos: usuarios } = useRecurso('/usuarios');
   const { alerta, exito, error, cerrar } = useAlerta();
+  const { usuario, tieneRol } = useAuth();
+  const puedeRegistrar = tieneRol(ADMIN, ALMACENERO);
+  const puedeAnular = tieneRol(ADMIN, SUPERVISOR);
 
   const [filtroTipo, setFiltroTipo] = useState('');
   const movimientosFiltrados = filtroTipo ? movimientos.filter((m) => m.tipo_movimiento === filtroTipo) : movimientos;
@@ -67,7 +71,7 @@ export default function Kardex() {
   return (
     <>
       <Alerta alerta={alerta} onCerrar={cerrar} />
-      <Encabezado titulo="Kardex / Movimientos" descripcion="Historial de entradas, salidas y ajustes de stock" textoBoton="Registrar Movimiento" onNuevo={abrirNuevo} />
+      <Encabezado titulo="Kardex / Movimientos" descripcion="Historial de entradas, salidas y ajustes de stock" textoBoton={puedeRegistrar ? 'Registrar Movimiento' : null} onNuevo={abrirNuevo} />
       <ErrorCarga mensaje={errorCarga} />
 
       <div className="card">
@@ -104,9 +108,11 @@ export default function Kardex() {
                   </td>
                   <td className="text-end text-nowrap">
                     <button className="btn btn-primary btn-sm me-2" onClick={() => setDetalle(m)}><i className="bi bi-eye me-1"></i>Ver</button>
-                    <button className="btn btn-outline-danger btn-sm" onClick={() => handleAnular(m)} disabled={m.estado === 'Anulado'}>
-                      <i className="bi bi-x-circle me-1"></i>Anular
-                    </button>
+                    {puedeAnular && (
+                      <button className="btn btn-outline-danger btn-sm" onClick={() => handleAnular(m)} disabled={m.estado === 'Anulado'}>
+                        <i className="bi bi-x-circle me-1"></i>Anular
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -154,11 +160,9 @@ export default function Kardex() {
                 {form.tipo_movimiento === 'Ajuste' && <div className="form-text">Use negativo para restar (ej. -2).</div>}
               </div>
               <div className="col-sm-7">
-                <label className="form-label">Usuario *</label>
-                <select name="usuario_id" className="form-select" value={form.usuario_id} onChange={handleChange} required>
-                  <option value="">-- Quién registra --</option>
-                  {usuarios.filter((u) => u.activo).map((u) => <option key={u.id} value={u.id}>{u.nombre} ({u.rol})</option>)}
-                </select>
+                <label className="form-label">Registrado por</label>
+                <input className="form-control" value={`${usuario.nombre} (${usuario.rol})`} disabled />
+                <div className="form-text">Se toma de la sesión (token JWT).</div>
               </div>
             </div>
 
@@ -198,7 +202,7 @@ export default function Kardex() {
               </dl>
             </div>
             <div className="modal-footer">
-              {detalle.estado === 'Activo' && (
+              {detalle.estado === 'Activo' && puedeAnular && (
                 <button className="btn btn-outline-danger me-auto" onClick={() => handleAnular(detalle)}>Anular movimiento</button>
               )}
               <button className="btn btn-secondary" onClick={() => setDetalle(null)}>Cerrar</button>

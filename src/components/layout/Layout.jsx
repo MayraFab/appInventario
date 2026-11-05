@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
+import { ADMIN } from '../../utils/roles';
 
 // Opciones del menú lateral (ruta, texto e ícono de Bootstrap Icons)
 const MENU = [
@@ -8,13 +10,18 @@ const MENU = [
   { ruta: '/categorias', texto: 'Categorías', icono: 'bi-tags' },
   { ruta: '/proveedores', texto: 'Proveedores', icono: 'bi-truck' },
   { ruta: '/kardex', texto: 'Kardex / Movimientos', icono: 'bi-arrow-left-right' },
-  { ruta: '/usuarios', texto: 'Usuarios', icono: 'bi-people' }
+  { ruta: '/usuarios', texto: 'Usuarios', icono: 'bi-people', roles: [ADMIN] }
 ];
 
 export default function Layout() {
   // En pantallas pequeñas el menú se abre/cierra con el botón ☰
   const [menuAbierto, setMenuAbierto] = useState(false);
   const cerrarMenu = () => setMenuAbierto(false);
+  const { usuario, logout, tieneRol } = useAuth();
+
+  // Solo se muestran las opciones permitidas para el rol del usuario
+  const opciones = MENU.filter((item) => !item.roles || tieneRol(...item.roles));
+  const iniciales = usuario.nombre.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 
   return (
     <div className="app">
@@ -28,7 +35,7 @@ export default function Layout() {
         </div>
 
         <nav className="sidebar-menu">
-          {MENU.map((item) => (
+          {opciones.map((item) => (
             <NavLink
               key={item.ruta}
               to={item.ruta}
@@ -58,11 +65,14 @@ export default function Layout() {
           </button>
           <span className="fw-semibold text-secondary d-none d-sm-inline">SENATI - Sistema de Inventario</span>
           <div className="ms-auto d-flex align-items-center gap-2">
-            <div className="avatar">MM</div>
+            <div className="avatar">{iniciales}</div>
             <div className="lh-sm d-none d-sm-block">
-              <div className="fw-semibold small">Mayra Mallqui</div>
-              <small className="text-secondary">Administrador</small>
+              <div className="fw-semibold small">{usuario.nombre}</div>
+              <small className="text-secondary">{usuario.rol}</small>
             </div>
+            <button className="btn btn-outline-secondary btn-sm ms-2" onClick={logout} title="Cerrar sesión">
+              <i className="bi bi-box-arrow-right"></i><span className="d-none d-md-inline ms-1">Salir</span>
+            </button>
           </div>
         </header>
 

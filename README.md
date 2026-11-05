@@ -4,7 +4,7 @@ Panel de inventario en **React 19 + Vite + React Router + Axios + Bootstrap 5** 
 [appApi](https://github.com/MayraFab/appApi) (Laboratorios #8 y #9 – Seminario IA 502, SENATI).
 
 ## Vistas
-Dashboard (KPI y gráfico) · Productos · Categorías · Proveedores · Kardex / Movimientos · Usuarios
+Login (JWT) · Dashboard (KPI y gráfico) · Productos · Categorías · Proveedores · Kardex / Movimientos · Usuarios
 
 ## Ejecutar
 ```bash
