@@ -1,111 +1,221 @@
+/* Estilos del Panel Administrativo (se reemplazan los estilos por defecto de Vite) */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  --sidebar-ancho: 250px;
+  --sidebar-fondo: #111827;
+  --sidebar-texto: #cbd5e1;
+  --fondo: #f1f5f9;
 }
 
 body {
   margin: 0;
+  background: var(--fondo);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+/* ---------- Menú lateral ---------- */
+.app-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar-ancho);
+  background: var(--sidebar-fondo);
+  color: var(--sidebar-texto);
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  z-index: 1040;
+  transition: transform 0.2s ease;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+.sidebar-marca {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 0.75rem;
+  flex: 1;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  color: var(--sidebar-texto);
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+/* NavLink agrega la clase "active" a la ruta actual */
+.sidebar-link.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.sidebar-pie {
+  padding: 1rem 1.25rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* ---------- Zona principal ---------- */
+.app-main {
+  margin-left: var(--sidebar-ancho);
+  min-height: 100vh;
+}
+
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 60px;
+  padding: 0 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.app-contenido {
+  padding: 1.5rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ---------- Tarjetas y tablas ---------- */
+.card {
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.card-header {
+  background: #fff;
+}
+
+.table thead th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #64748b;
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.kpi {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.kpi-icono {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+}
+
+.buscador {
+  width: 280px;
+  max-width: 100%;
+}
+
+.filtro {
+  width: auto;
+}
+
+/* Movimiento anulado: se ve tachado y apagado */
+.fila-anulada td {
+  color: #94a3b8 !important;
+  text-decoration: line-through;
+}
+
+.fila-anulada .badge,
+.fila-anulada .btn {
+  text-decoration: none;
+}
+
+/* Gráfico de dona */
+.dona-total {
+  font-size: 1.6rem;
+  font-weight: 700;
+  fill: #0f172a;
+}
+
+.dona-etiqueta {
+  font-size: 0.75rem;
+  fill: #64748b;
+}
+
+.leyenda {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Mensajes flotantes por encima de los modales */
+.alerta-flotante {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2000;
+  max-width: 420px;
+}
+
+/* ---------- Responsive: en tablets y celulares el menú se oculta ---------- */
+.sidebar-fondo {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .app-sidebar {
+    transform: translateX(-100%);
   }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+  .app-sidebar.abierto {
+    transform: none;
   }
-}
-p {
-  margin: 0;
-}
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+  .sidebar-fondo {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1030;
+  }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  .app-main {
+    margin-left: 0;
+  }
+
+  .app-contenido {
+    padding: 1rem;
+  }
 }
